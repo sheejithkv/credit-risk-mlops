@@ -1,0 +1,21 @@
+dataset:
+  raw_path: data/raw/german_credit.csv
+  processed_path: data/processed/german_credit_validated.csv
+  target_column: credit_risk
+  allow_missing_raw: true
+
+validation:
+  min_rows: 100
+  expected_columns: 21
+  allowed_targets:
+    - good
+    - bad
+
+model:
+  random_state: 42
+  test_size: 0.2
+
+mlflow:
+  tracking_uri: mlruns
+  experiment_name: credit-risk
+  registered_model_name: credit-risk-model

@@ -1,0 +1,35 @@
+schema: '2.0'
+stages:
+  validate_data:
+    cmd: python3 -m src.credit_risk.data.validate
+    deps:
+    - path: configs/logging.yaml
+      hash: md5
+      md5: 8e5e66179e26c29f84c9513e20679a04
+      size: 270
+    - path: src/credit_risk/config.py
+      hash: md5
+      md5: 7cb2de9f34885a068ed83397e440cc58
+      size: 1153
+    - path: src/credit_risk/data/validate.py
+      hash: md5
+      md5: ac9f17b9023c107b35dedf3e14c67221
+      size: 2824
+    params:
+      params.yaml:
+        dataset:
+          raw_path: data/raw/german_credit.csv
+          processed_path: data/processed/german_credit_validated.csv
+          target_column: credit_risk
+          allow_missing_raw: true
+        validation:
+          min_rows: 100
+          expected_columns: 21
+          allowed_targets:
+          - good
+          - bad
+    outs:
+    - path: data/processed/german_credit_validated.csv
+      hash: md5
+      md5: 91035cd07243f3bc785ce5858a5fd82c
+      size: 223

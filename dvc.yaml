@@ -1,0 +1,13 @@
+stages:
+  validate_data:
+    cmd: python3 -m src.credit_risk.data.validate
+    deps:
+      - src/credit_risk/data/validate.py
+      - src/credit_risk/config.py
+      - configs/logging.yaml
+    params:
+      - dataset
+      - validation
+    outs:
+      - data/processed/german_credit_validated.csv:
+          persist: true
