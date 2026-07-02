@@ -31,6 +31,7 @@ class PreprocessingConfig(BaseModel):
     drop_columns: list[str] = Field(default_factory=list)
     target_mapping: dict[str, int]
 
+
 class SplitConfig(BaseModel):
     train_size: float = Field(gt=0.0, lt=1.0)
     validation_size: float = Field(gt=0.0, lt=1.0)
@@ -56,17 +57,29 @@ class RandomForestConfig(BaseModel):
     max_depth: int | None = Field(default=None, gt=0)
     min_samples_split: int = Field(default=2, ge=2)
     min_samples_leaf: int = Field(default=1, ge=1)
+    max_features: Literal["sqrt", "log2"] | float | None = "sqrt"
     class_weight: str | None = None
 
 
 class ModelConfig(BaseModel):
     output_path: Path
     metrics_path: Path
+    best_params_path: Path
     algorithm: Literal["logistic_regression", "random_forest"]
     random_state: int = 42
     test_size: float = Field(gt=0.0, lt=1.0)
     logistic_regression: LogisticRegressionConfig
     random_forest: RandomForestConfig
+
+
+class OptunaConfig(BaseModel):
+    n_trials: int = Field(gt=0)
+    timeout: int | None = Field(default=None, gt=0)
+    direction: Literal["maximize", "minimize"] = "maximize"
+    sampler_seed: int = 42
+    study_name: str
+    storage: str
+    metric_name: Literal["accuracy", "precision", "recall", "f1", "roc_auc"] = "f1"
 
 
 class MlflowConfig(BaseModel):
@@ -81,6 +94,7 @@ class AppConfig(BaseModel):
     preprocessing: PreprocessingConfig
     split: SplitConfig
     model: ModelConfig
+    optuna: OptunaConfig
     mlflow: MlflowConfig
 
 

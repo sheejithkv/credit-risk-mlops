@@ -9,8 +9,8 @@ stages:
       size: 270
     - path: src/credit_risk/config.py
       hash: md5
-      md5: a12c835c2ba7225211c9f79d2fe4bc65
-      size: 2653
+      md5: 2a30e11c566c1e469c693db0758e76c8
+      size: 3097
     - path: src/credit_risk/data/validate.py
       hash: md5
       md5: ac9f17b9023c107b35dedf3e14c67221
@@ -51,8 +51,8 @@ stages:
       size: 16453645
     - path: src/credit_risk/config.py
       hash: md5
-      md5: a12c835c2ba7225211c9f79d2fe4bc65
-      size: 2653
+      md5: 2a30e11c566c1e469c693db0758e76c8
+      size: 3097
     - path: src/credit_risk/data/preprocess.py
       hash: md5
       md5: 745a6939c9fa372d6384312b7816b67e
@@ -96,8 +96,8 @@ stages:
       size: 14086587
     - path: src/credit_risk/config.py
       hash: md5
-      md5: a12c835c2ba7225211c9f79d2fe4bc65
-      size: 2653
+      md5: 2a30e11c566c1e469c693db0758e76c8
+      size: 3097
     - path: src/credit_risk/data/schema.py
       hash: md5
       md5: 5902e2f299a75a0fe8e78e2218a05329
@@ -132,8 +132,8 @@ stages:
       size: 14086587
     - path: src/credit_risk/config.py
       hash: md5
-      md5: a12c835c2ba7225211c9f79d2fe4bc65
-      size: 2653
+      md5: 2a30e11c566c1e469c693db0758e76c8
+      size: 3097
     - path: src/credit_risk/data/splitter.py
       hash: md5
       md5: 0d00e71ababe6a7d9ee1479f5d4b7402
@@ -184,18 +184,22 @@ stages:
       hash: md5
       md5: 71d66f0cff1322a763e0885685a8876f
       size: 2113854
+    - path: models/best_params.json
+      hash: md5
+      md5: 23c7643609fe029eb1fb2955753d9c42
+      size: 189
     - path: src/credit_risk/config.py
       hash: md5
-      md5: a12c835c2ba7225211c9f79d2fe4bc65
-      size: 2653
+      md5: 2a30e11c566c1e469c693db0758e76c8
+      size: 3097
     - path: src/credit_risk/modeling/metrics.py
       hash: md5
       md5: fa1d963a528df9d9df26b08c49747462
       size: 797
     - path: src/credit_risk/modeling/train.py
       hash: md5
-      md5: de20440db3ba1c2ca3051378dd9d33d8
-      size: 5385
+      md5: a99b8092d21a0d3face2d20aed43eb42
+      size: 6387
     params:
       params.yaml:
         dataset:
@@ -215,6 +219,7 @@ stages:
         model:
           output_path: models/model.pkl
           metrics_path: models/metrics.json
+          best_params_path: models/best_params.json
           algorithm: random_forest
           random_state: 42
           test_size: 0.2
@@ -226,13 +231,95 @@ stages:
             max_depth: 8
             min_samples_split: 2
             min_samples_leaf: 1
+            max_features: sqrt
             class_weight: balanced
     outs:
     - path: models/metrics.json
       hash: md5
-      md5: 17bc31641df3faf8202b211b4d52b351
-      size: 166
+      md5: 2add55837fb477b852d5c21558819595
+      size: 164
     - path: models/model.pkl
       hash: md5
-      md5: d68a8355de9fe86ac66bcb8fcf674220
-      size: 7312552
+      md5: c1624339b0199dfb432eda9b6ab99a22
+      size: 13942402
+  optimize_model:
+    cmd: python3 -m src.credit_risk.modeling.optimize
+    deps:
+    - path: configs/logging.yaml
+      hash: md5
+      md5: 8e5e66179e26c29f84c9513e20679a04
+      size: 270
+    - path: data/processed/train.csv
+      hash: md5
+      md5: 7eb8beea92f8a07605428d105bd9e668
+      size: 9860939
+    - path: data/processed/validation.csv
+      hash: md5
+      md5: 71d66f0cff1322a763e0885685a8876f
+      size: 2113854
+    - path: src/credit_risk/config.py
+      hash: md5
+      md5: 2a30e11c566c1e469c693db0758e76c8
+      size: 3097
+    - path: src/credit_risk/modeling/metrics.py
+      hash: md5
+      md5: fa1d963a528df9d9df26b08c49747462
+      size: 797
+    - path: src/credit_risk/modeling/optimize.py
+      hash: md5
+      md5: 7e8a7c3f2a5e4a0fd4f994f8e6ae9a43
+      size: 5730
+    - path: src/credit_risk/modeling/train.py
+      hash: md5
+      md5: a99b8092d21a0d3face2d20aed43eb42
+      size: 6387
+    params:
+      params.yaml:
+        dataset:
+          raw_path: data/raw/german_credit.csv
+          processed_path: data/processed/german_credit_validated.csv
+          final_path: data/processed/credit_risk_features.csv
+          train_path: data/processed/train.csv
+          validation_path: data/processed/validation.csv
+          test_path: data/processed/test.csv
+          schema_path: data/processed/schema.json
+          target_column: target_bad
+          allow_missing_raw: true
+        mlflow:
+          tracking_uri: mlruns
+          experiment_name: credit-risk
+          registered_model_name: credit-risk-model
+        model:
+          output_path: models/model.pkl
+          metrics_path: models/metrics.json
+          best_params_path: models/best_params.json
+          algorithm: random_forest
+          random_state: 42
+          test_size: 0.2
+          logistic_regression:
+            max_iter: 1000
+            class_weight: balanced
+          random_forest:
+            n_estimators: 200
+            max_depth: 8
+            min_samples_split: 2
+            min_samples_leaf: 1
+            max_features: sqrt
+            class_weight: balanced
+        optuna:
+          n_trials: 20
+          timeout:
+          direction: maximize
+          sampler_seed: 42
+          study_name: credit-risk-random-forest
+          storage: sqlite:///models/optuna_study.db
+          metric_name: f1
+    outs:
+    - path: models/best_params.json
+      hash: md5
+      md5: 23c7643609fe029eb1fb2955753d9c42
+      size: 189
+    - path: models/optuna_study.db
+      hash: md5
+      md5: fc1f5f1d742db91909d101609dbf3ec2
+      size: 131072

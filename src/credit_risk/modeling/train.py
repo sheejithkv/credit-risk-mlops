@@ -25,6 +25,39 @@ class ModelTrainingError(ValueError):
     """Raised when model training cannot be completed."""
 
 
+def load_best_params(path: Path) -> dict[str, Any] | None:
+    if not path.exists():
+        return None
+
+    with path.open("r", encoding="utf-8") as file_obj:
+        params = json.load(file_obj)
+
+    if not isinstance(params, dict):
+        raise ModelTrainingError(f"Invalid best params format: {path}")
+
+    return params
+
+
+def get_random_forest_params(config: AppConfig) -> dict[str, Any]:
+    optimized_params = load_best_params(config.model.best_params_path)
+
+    if optimized_params:
+        LOGGER.info("Using optimized Random Forest params from %s", config.model.best_params_path)
+        return optimized_params
+
+    LOGGER.info("Using configured Random Forest params from params.yaml")
+    return {
+        "n_estimators": config.model.random_forest.n_estimators,
+        "max_depth": config.model.random_forest.max_depth,
+        "min_samples_split": config.model.random_forest.min_samples_split,
+        "min_samples_leaf": config.model.random_forest.min_samples_leaf,
+        "max_features": config.model.random_forest.max_features,
+        "class_weight": config.model.random_forest.class_weight,
+        "random_state": config.model.random_state,
+        "n_jobs": -1,
+    }
+
+
 def build_model(config: AppConfig) -> Pipeline:
     algorithm = config.model.algorithm
 
@@ -42,15 +75,7 @@ def build_model(config: AppConfig) -> Pipeline:
         )
 
     if algorithm == "random_forest":
-        classifier = RandomForestClassifier(
-            n_estimators=config.model.random_forest.n_estimators,
-            max_depth=config.model.random_forest.max_depth,
-            min_samples_split=config.model.random_forest.min_samples_split,
-            min_samples_leaf=config.model.random_forest.min_samples_leaf,
-            class_weight=config.model.random_forest.class_weight,
-            random_state=config.model.random_state,
-            n_jobs=-1,
-        )
+        classifier = RandomForestClassifier(**get_random_forest_params(config))
         return Pipeline(steps=[("classifier", classifier)])
 
     raise ModelTrainingError(f"Unsupported algorithm: {algorithm}")
@@ -128,6 +153,11 @@ def log_to_mlflow(model: Pipeline, metrics: dict[str, Any], config: AppConfig) -
                 "random_state": config.model.random_state,
             }
         )
+
+        if config.model.algorithm == "random_forest":
+            mlflow.log_params(
+                {f"model_{key}": value for key, value in get_random_forest_params(config).items()}
+            )
 
         for metric_name, metric_value in metrics.items():
             mlflow.log_metric(metric_name, float(metric_value))

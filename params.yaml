@@ -24,7 +24,7 @@ preprocessing:
     - timestamp
   target_mapping:
     good: 0
-    bad: 1      
+    bad: 1
 
 split:
   train_size: 0.70
@@ -36,6 +36,7 @@ split:
 model:
   output_path: models/model.pkl
   metrics_path: models/metrics.json
+  best_params_path: models/best_params.json
   algorithm: random_forest
   random_state: 42
   test_size: 0.2
@@ -47,7 +48,17 @@ model:
     max_depth: 8
     min_samples_split: 2
     min_samples_leaf: 1
+    max_features: sqrt
     class_weight: balanced
+
+optuna:
+  n_trials: 20
+  timeout: null
+  direction: maximize
+  sampler_seed: 42
+  study_name: credit-risk-random-forest
+  storage: sqlite:///models/optuna_study.db
+  metric_name: f1
 
 mlflow:
   tracking_uri: mlruns

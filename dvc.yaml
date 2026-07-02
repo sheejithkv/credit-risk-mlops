@@ -57,11 +57,32 @@ stages:
       - data/processed/test.csv:
           persist: true
 
+  optimize_model:
+    cmd: python3 -m src.credit_risk.modeling.optimize
+    deps:
+      - data/processed/train.csv
+      - data/processed/validation.csv
+      - src/credit_risk/modeling/optimize.py
+      - src/credit_risk/modeling/train.py
+      - src/credit_risk/modeling/metrics.py
+      - src/credit_risk/config.py
+      - configs/logging.yaml
+    params:
+      - dataset
+      - model
+      - optuna
+      - mlflow
+    outs:
+      - models/best_params.json
+      - models/optuna_study.db:
+          persist: true
+
   train_model:
     cmd: python3 -m src.credit_risk.modeling.train
     deps:
       - data/processed/train.csv
       - data/processed/validation.csv
+      - models/best_params.json
       - src/credit_risk/modeling/train.py
       - src/credit_risk/modeling/metrics.py
       - src/credit_risk/config.py
