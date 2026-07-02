@@ -3,27 +3,81 @@ kind: PrometheusRule
 metadata:
   name: credit-risk-alerts
   namespace: credit-risk
+  labels:
+    app: credit-risk-api
+    release: prometheus
 spec:
   groups:
-    - name: credit-risk
+    - name: credit-risk-api
       rules:
-
         - alert: CreditRiskAPIDown
-          expr: up{job="credit-risk-api"} == 0
+          expr: up{service="credit-risk-api"} == 0
           for: 2m
           labels:
             severity: critical
           annotations:
-            summary: Credit Risk API unavailable
+            summary: Credit Risk API is unavailable
+            description: Prometheus cannot scrape credit-risk-api for more than 2 minutes.
 
-        - alert: HighPredictionLatency
-          expr: histogram_quantile(
-                  0.95,
-                  sum(rate(credit_risk_prediction_latency_seconds_bucket[5m]))
-                  by (le)
-                ) > 1
+        - alert: CreditRiskHighPredictionLatency
+          expr: |
+            histogram_quantile(
+              0.95,
+              sum(rate(credit_risk_prediction_latency_seconds_bucket[5m])) by (le)
+            ) > 0.1
           for: 5m
           labels:
             severity: warning
           annotations:
-            summary: Prediction latency above one second
+            summary: Credit Risk API p95 latency exceeds 100ms
+            description: Prediction p95 latency has exceeded the assignment target of 100ms.
+
+        - alert: CreditRiskHighErrorRate
+          expr: |
+            (
+              sum(rate(credit_risk_requests_failed_total[5m]))
+              /
+              clamp_min(sum(rate(credit_risk_requests_total[5m])), 1)
+            ) > 0.02
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: Credit Risk API error rate exceeds 2%
+            description: Error rate is above rollback threshold for 5 minutes.
+
+        - alert: CreditRiskModelNotReady
+          expr: credit_risk_model_ready == 0
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: Credit Risk model is not ready
+            description: API is running but model artifact is not loaded.
+
+        - alert: CreditRiskHighBusinessCost
+          expr: increase(credit_risk_business_cost_usd_total[1h]) > 100000
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: Estimated business cost exceeded threshold
+            description: Estimated business impact exceeded $100,000 in the last hour.
+
+        - alert: CreditRiskPodRestartSpike
+          expr: increase(kube_pod_container_status_restarts_total{namespace="credit-risk"}[15m]) > 3
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: Credit Risk API pod restart spike
+            description: More than 3 container restarts detected in 15 minutes.
+
+        - alert: CreditRiskHPAMaxReplicas
+          expr: kube_horizontalpodautoscaler_status_current_replicas{namespace="credit-risk", horizontalpodautoscaler="credit-risk-api"} >= 10
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: Credit Risk API HPA at max replicas
+            description: HPA has reached max replicas for more than 10 minutes.

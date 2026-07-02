@@ -1,0 +1,338 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(credit_risk_requests_total[5m]))",
+          "legendFormat": "request rate"
+        }
+      ],
+      "title": "Request Rate",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(credit_risk_requests_failed_total[5m])) / clamp_min(sum(rate(credit_risk_requests_total[5m])), 1)",
+          "legendFormat": "error rate"
+        }
+      ],
+      "title": "Error Rate",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 0
+      },
+      "id": 3,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(credit_risk_prediction_latency_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p95 latency"
+        }
+      ],
+      "title": "Prediction Latency p95",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 8
+      },
+      "id": 4,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum by (risk_label) (increase(credit_risk_predictions_total[15m]))",
+          "legendFormat": "{{risk_label}}"
+        }
+      ],
+      "title": "Prediction Distribution",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 8
+      },
+      "id": 5,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum by (cost_type) (increase(credit_risk_business_cost_usd_total[1h]))",
+          "legendFormat": "{{cost_type}}"
+        }
+      ],
+      "title": "Business Cost Impact",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 8
+      },
+      "id": 6,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum(increase(credit_risk_applications_processed_total[1h]))",
+          "legendFormat": "applications"
+        }
+      ],
+      "title": "Applications Processed",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "id": 7,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum(increase(credit_risk_false_approvals_total[1h]))",
+          "legendFormat": "estimated false approvals"
+        },
+        {
+          "expr": "sum(increase(credit_risk_false_rejections_total[1h]))",
+          "legendFormat": "estimated false rejections"
+        }
+      ],
+      "title": "Business Risk Events",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "id": 8,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum(rate(credit_risk_model_confidence_bucket[5m])) by (le))",
+          "legendFormat": "p50 confidence"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(credit_risk_model_confidence_bucket[5m])) by (le))",
+          "legendFormat": "p95 confidence"
+        }
+      ],
+      "title": "Model Confidence Trend",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 39,
+  "style": "dark",
+  "tags": [
+    "mlops",
+    "credit-risk",
+    "prometheus"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Credit Risk MLOps Dashboard",
+  "uid": "credit-risk-mlops",
+  "version": 1,
+  "weekStart": ""
+}

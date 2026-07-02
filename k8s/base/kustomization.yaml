@@ -3,5 +3,14 @@ kind: Kustomization
 
 resources:
   - namespace.yaml
-  - deployment.yaml
+  - serviceaccount.yaml
+  - configmap.yaml
+  - secret.yaml
+  - deployment-blue.yaml
+  - deployment-green.yaml
   - service.yaml
+  - service-canary.yaml
+  - hpa.yaml
+  - pdb.yaml
+  - networkpolicy.yaml
+  - rollback-cronjob.yaml

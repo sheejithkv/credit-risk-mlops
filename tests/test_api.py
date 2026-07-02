@@ -3,15 +3,19 @@ from fastapi.testclient import TestClient
 from api.main import app, app_state
 
 
+class DummyClassifier:
+    def predict_proba(self, features):
+        return [[0.8, 0.2]]
+
+
 class DummyModel:
-    named_steps = {"classifier": object()}
+    named_steps = {"classifier": DummyClassifier()}
 
     def predict(self, features):
         return [0]
 
     def predict_proba(self, features):
         return [[0.8, 0.2]]
-
 
 def valid_payload() -> dict:
     return {

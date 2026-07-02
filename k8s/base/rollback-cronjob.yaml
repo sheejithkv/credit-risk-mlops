@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: credit-risk-error-rate-rollback
+  namespace: credit-risk
+spec:
+  schedule: "*/5 * * * *"
+  suspend: true
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: credit-risk-api
+          restartPolicy: OnFailure
+          containers:
+            - name: rollback-check
+              image: bitnami/kubectl:latest
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  echo "Rollback hook placeholder."
+                  echo "Enable only after wiring Prometheus query access."
+                  echo "Manual rollback:"
+                  echo "kubectl -n credit-risk patch svc credit-risk-api -p '{\"spec\":{\"selector\":{\"app\":\"credit-risk-api\",\"version\":\"blue\"}}}'"

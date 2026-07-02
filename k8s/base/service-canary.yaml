@@ -1,15 +1,16 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: credit-risk-api
+  name: credit-risk-api-canary
   namespace: credit-risk
   labels:
     app: credit-risk-api
+    traffic: canary
 spec:
   type: ClusterIP
   selector:
     app: credit-risk-api
-    version: blue
+    version: green
   ports:
     - name: http
       port: 80

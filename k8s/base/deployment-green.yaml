@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: credit-risk-api-green
+  namespace: credit-risk
+  labels:
+    app: credit-risk-api
+    version: green
+spec:
+  replicas: 0
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: credit-risk-api
+      version: green
+  template:
+    metadata:
+      labels:
+        app: credit-risk-api
+        version: green
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: /metrics
+    spec:
+      serviceAccountName: credit-risk-api
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: credit-risk-api
+          image: credit-risk-api:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+              name: http
+          envFrom:
+            - configMapRef:
+                name: credit-risk-api-config
+            - secretRef:
+                name: credit-risk-api-secret
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+            limits:
+              cpu: "1"
+              memory: "2Gi"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            runAsUser: 10001
+            capabilities:
+              drop:
+                - ALL

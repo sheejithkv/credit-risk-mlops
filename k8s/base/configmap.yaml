@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: credit-risk-api-config
+  namespace: credit-risk
+data:
+  MODEL_PATH: /app/models/model.pkl
+  SCHEMA_PATH: /app/data/processed/schema.json
+  LOG_LEVEL: INFO
+  ENVIRONMENT: production

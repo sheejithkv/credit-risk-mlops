@@ -3,11 +3,18 @@ kind: ServiceMonitor
 metadata:
   name: credit-risk-api
   namespace: credit-risk
+  labels:
+    app: credit-risk-api
+    release: prometheus
 spec:
   selector:
     matchLabels:
       app: credit-risk-api
+  namespaceSelector:
+    matchNames:
+      - credit-risk
   endpoints:
     - port: http
       path: /metrics
-      interval: 30s
+      interval: 15s
+      scrapeTimeout: 10s

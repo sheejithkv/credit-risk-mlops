@@ -1,0 +1,29 @@
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  name: credit-risk-alertmanager
+  namespace: credit-risk
+  labels:
+    alertmanagerConfig: credit-risk
+spec:
+  route:
+    groupBy:
+      - alertname
+      - severity
+    groupWait: 30s
+    groupInterval: 5m
+    repeatInterval: 2h
+    receiver: credit-risk-default
+    routes:
+      - matchers:
+          - name: severity
+            value: critical
+        receiver: credit-risk-critical
+      - matchers:
+          - name: severity
+            value: warning
+        receiver: credit-risk-warning
+  receivers:
+    - name: credit-risk-default
+    - name: credit-risk-critical
+    - name: credit-risk-warning
