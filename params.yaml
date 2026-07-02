@@ -6,22 +6,25 @@ dataset:
   validation_path: data/processed/validation.csv
   test_path: data/processed/test.csv
   schema_path: data/processed/schema.json
-  target_column: credit_risk
+  target_column: target_bad
   allow_missing_raw: true
 
 validation:
   min_rows: 100
   expected_columns: 21
   allowed_targets:
-    - good
-    - bad
+    - "0"
+    - "1"
 
 preprocessing:
   drop_duplicates: true
-  encode_target: true
+  encode_target: false
+  drop_columns:
+    - application_id
+    - timestamp
   target_mapping:
     good: 0
-    bad: 1
+    bad: 1      
 
 split:
   train_size: 0.70
@@ -31,8 +34,20 @@ split:
   random_state: 42
 
 model:
+  output_path: models/model.pkl
+  metrics_path: models/metrics.json
+  algorithm: random_forest
   random_state: 42
   test_size: 0.2
+  logistic_regression:
+    max_iter: 1000
+    class_weight: balanced
+  random_forest:
+    n_estimators: 200
+    max_depth: 8
+    min_samples_split: 2
+    min_samples_leaf: 1
+    class_weight: balanced
 
 mlflow:
   tracking_uri: mlruns

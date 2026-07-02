@@ -7,7 +7,7 @@ from src.credit_risk.data.validate import DatasetValidationError, validate_dataf
 
 def make_valid_dataframe(rows: int = 100) -> pd.DataFrame:
     data = {f"feature_{idx}": [idx] * rows for idx in range(1, 21)}
-    data["credit_risk"] = ["good"] * rows
+    data["target_bad"] = [0, 1] * (rows // 2)
     return pd.DataFrame(data)
 
 
@@ -23,7 +23,7 @@ def test_validate_dataframe_success() -> None:
 def test_validate_dataframe_rejects_invalid_target() -> None:
     config = load_config("params.yaml")
     df = make_valid_dataframe()
-    df.loc[0, "credit_risk"] = "unknown"
+    df.loc[0, "target_bad"] = 9
 
     with pytest.raises(DatasetValidationError, match="Invalid target values"):
         validate_dataframe(df, config)

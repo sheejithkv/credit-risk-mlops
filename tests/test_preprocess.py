@@ -5,20 +5,24 @@ from src.credit_risk.config import load_config
 from src.credit_risk.data.preprocess import PreprocessingError, preprocess_dataframe
 
 
-def test_preprocess_encodes_target_and_categoricals() -> None:
+def test_preprocess_encodes_categoricals_and_keeps_numeric_target() -> None:
     config = load_config("params.yaml")
     df = pd.DataFrame(
         {
+            "application_id": [1, 2],
+            "timestamp": ["2025-01-01 00:00:00", "2025-01-02 00:00:00"],
             "age": [30, 40],
             "job": ["skilled", "unskilled"],
-            "credit_risk": ["good", "bad"],
+            "target_bad": [0, 1],
         }
     )
 
     result = preprocess_dataframe(df, config)
 
-    assert "credit_risk" in result.columns
-    assert result["credit_risk"].tolist() == [0, 1]
+    assert "application_id" not in result.columns
+    assert "timestamp" not in result.columns
+    assert "target_bad" in result.columns
+    assert result["target_bad"].tolist() == [0, 1]
     assert "job_skilled" in result.columns
     assert "job_unskilled" in result.columns
 

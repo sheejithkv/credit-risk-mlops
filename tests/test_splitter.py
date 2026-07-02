@@ -10,7 +10,7 @@ def make_split_dataframe(rows: int = 100) -> pd.DataFrame:
         {
             "age": list(range(rows)),
             "amount": list(range(1000, 1000 + rows)),
-            "credit_risk": [0, 1] * (rows // 2),
+            "target_bad": [0, 1] * (rows // 2),
         }
     )
 

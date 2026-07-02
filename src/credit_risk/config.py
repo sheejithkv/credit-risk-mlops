@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import yaml
 from pydantic import BaseModel, Field, model_validator
@@ -28,8 +28,8 @@ class ValidationConfig(BaseModel):
 class PreprocessingConfig(BaseModel):
     drop_duplicates: bool = True
     encode_target: bool = True
+    drop_columns: list[str] = Field(default_factory=list)
     target_mapping: dict[str, int]
-
 
 class SplitConfig(BaseModel):
     train_size: float = Field(gt=0.0, lt=1.0)
@@ -46,9 +46,27 @@ class SplitConfig(BaseModel):
         return self
 
 
+class LogisticRegressionConfig(BaseModel):
+    max_iter: int = Field(gt=0)
+    class_weight: str | None = None
+
+
+class RandomForestConfig(BaseModel):
+    n_estimators: int = Field(gt=0)
+    max_depth: int | None = Field(default=None, gt=0)
+    min_samples_split: int = Field(default=2, ge=2)
+    min_samples_leaf: int = Field(default=1, ge=1)
+    class_weight: str | None = None
+
+
 class ModelConfig(BaseModel):
+    output_path: Path
+    metrics_path: Path
+    algorithm: Literal["logistic_regression", "random_forest"]
     random_state: int = 42
     test_size: float = Field(gt=0.0, lt=1.0)
+    logistic_regression: LogisticRegressionConfig
+    random_forest: RandomForestConfig
 
 
 class MlflowConfig(BaseModel):

@@ -12,13 +12,13 @@ def test_infer_schema_detects_columns() -> None:
             "age": [30, 40],
             "amount": [1000.0, 2000.0],
             "job": ["skilled", "unskilled"],
-            "credit_risk": [0, 1],
+            "target_bad": [0, 1],
         }
     )
 
     schema = infer_schema(df, config)
 
-    assert schema["target_column"] == "credit_risk"
+    assert schema["target_column"] == "target_bad"
     assert schema["numerical_columns"] == ["age", "amount"]
     assert schema["categorical_columns"] == ["job"]
 

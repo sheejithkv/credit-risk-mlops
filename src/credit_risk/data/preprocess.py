@@ -26,6 +26,16 @@ def preprocess_dataframe(df: pd.DataFrame, config: AppConfig) -> pd.DataFrame:
 
     processed_df = df.copy()
 
+    drop_columns = [
+        column
+        for column in config.preprocessing.drop_columns
+        if column in processed_df.columns and column != target_column
+    ]
+
+    if drop_columns:
+        processed_df = processed_df.drop(columns=drop_columns)
+        LOGGER.info("Dropped columns: %s", drop_columns)
+
     if config.preprocessing.drop_duplicates:
         before = len(processed_df)
         processed_df = processed_df.drop_duplicates()
@@ -41,6 +51,8 @@ def preprocess_dataframe(df: pd.DataFrame, config: AppConfig) -> pd.DataFrame:
             raise PreprocessingError("Target encoding produced null values")
 
         processed_df[target_column] = processed_df[target_column].astype(int)
+    else:
+        processed_df[target_column] = processed_df[target_column].astype(int)
 
     categorical_columns = [
         column
@@ -49,11 +61,12 @@ def preprocess_dataframe(df: pd.DataFrame, config: AppConfig) -> pd.DataFrame:
     ]
 
     if categorical_columns:
+        LOGGER.info("One-hot encoding categorical columns: %s", categorical_columns)
         processed_df = pd.get_dummies(
             processed_df,
             columns=categorical_columns,
             drop_first=False,
-            dtype=int,
+            dtype="int8",
         )
 
     return processed_df

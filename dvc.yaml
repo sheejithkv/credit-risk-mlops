@@ -56,3 +56,20 @@ stages:
           persist: true
       - data/processed/test.csv:
           persist: true
+
+  train_model:
+    cmd: python3 -m src.credit_risk.modeling.train
+    deps:
+      - data/processed/train.csv
+      - data/processed/validation.csv
+      - src/credit_risk/modeling/train.py
+      - src/credit_risk/modeling/metrics.py
+      - src/credit_risk/config.py
+      - configs/logging.yaml
+    params:
+      - dataset
+      - model
+      - mlflow
+    outs:
+      - models/model.pkl
+      - models/metrics.json
