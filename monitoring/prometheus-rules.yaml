@@ -1,0 +1,29 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: credit-risk-alerts
+  namespace: credit-risk
+spec:
+  groups:
+    - name: credit-risk
+      rules:
+
+        - alert: CreditRiskAPIDown
+          expr: up{job="credit-risk-api"} == 0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: Credit Risk API unavailable
+
+        - alert: HighPredictionLatency
+          expr: histogram_quantile(
+                  0.95,
+                  sum(rate(credit_risk_prediction_latency_seconds_bucket[5m]))
+                  by (le)
+                ) > 1
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: Prediction latency above one second
