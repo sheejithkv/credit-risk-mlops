@@ -1,6 +1,7 @@
 dataset:
   raw_path: data/raw/german_credit.csv
   processed_path: data/processed/german_credit_validated.csv
+  final_path: data/processed/credit_risk_features.csv
   target_column: credit_risk
   allow_missing_raw: true
 
@@ -10,6 +11,13 @@ validation:
   allowed_targets:
     - good
     - bad
+
+preprocessing:
+  drop_duplicates: true
+  encode_target: true
+  target_mapping:
+    good: 0
+    bad: 1
 
 model:
   random_state: 42

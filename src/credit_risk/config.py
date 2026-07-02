@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field
 class DatasetConfig(BaseModel):
     raw_path: Path
     processed_path: Path
+    final_path: Path
     target_column: str
     allow_missing_raw: bool = False
 
@@ -18,6 +19,12 @@ class ValidationConfig(BaseModel):
     min_rows: int = Field(gt=0)
     expected_columns: int = Field(gt=0)
     allowed_targets: list[str]
+
+
+class PreprocessingConfig(BaseModel):
+    drop_duplicates: bool = True
+    encode_target: bool = True
+    target_mapping: dict[str, int]
 
 
 class ModelConfig(BaseModel):
@@ -34,6 +41,7 @@ class MlflowConfig(BaseModel):
 class AppConfig(BaseModel):
     dataset: DatasetConfig
     validation: ValidationConfig
+    preprocessing: PreprocessingConfig
     model: ModelConfig
     mlflow: MlflowConfig
 

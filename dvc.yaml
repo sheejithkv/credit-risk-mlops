@@ -11,3 +11,17 @@ stages:
     outs:
       - data/processed/german_credit_validated.csv:
           persist: true
+
+  preprocess_data:
+    cmd: python3 -m src.credit_risk.data.preprocess
+    deps:
+      - data/processed/german_credit_validated.csv
+      - src/credit_risk/data/preprocess.py
+      - src/credit_risk/config.py
+      - configs/logging.yaml
+    params:
+      - dataset
+      - preprocessing
+    outs:
+      - data/processed/credit_risk_features.csv:
+          persist: true
