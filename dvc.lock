@@ -9,8 +9,8 @@ stages:
       size: 270
     - path: src/credit_risk/config.py
       hash: md5
-      md5: eb4db9d99d9daf478f937526361a40ef
-      size: 1352
+      md5: 9066bcd3e250dd3cd215968e21845afa
+      size: 2010
     - path: src/credit_risk/data/validate.py
       hash: md5
       md5: ac9f17b9023c107b35dedf3e14c67221
@@ -21,6 +21,10 @@ stages:
           raw_path: data/raw/german_credit.csv
           processed_path: data/processed/german_credit_validated.csv
           final_path: data/processed/credit_risk_features.csv
+          train_path: data/processed/train.csv
+          validation_path: data/processed/validation.csv
+          test_path: data/processed/test.csv
+          schema_path: data/processed/schema.json
           target_column: credit_risk
           allow_missing_raw: true
         validation:
@@ -47,8 +51,8 @@ stages:
       size: 223
     - path: src/credit_risk/config.py
       hash: md5
-      md5: eb4db9d99d9daf478f937526361a40ef
-      size: 1352
+      md5: 9066bcd3e250dd3cd215968e21845afa
+      size: 2010
     - path: src/credit_risk/data/preprocess.py
       hash: md5
       md5: 088c785c1c493faab07d2892611068d7
@@ -59,6 +63,10 @@ stages:
           raw_path: data/raw/german_credit.csv
           processed_path: data/processed/german_credit_validated.csv
           final_path: data/processed/credit_risk_features.csv
+          train_path: data/processed/train.csv
+          validation_path: data/processed/validation.csv
+          test_path: data/processed/test.csv
+          schema_path: data/processed/schema.json
           target_column: credit_risk
           allow_missing_raw: true
         preprocessing:
@@ -69,6 +77,92 @@ stages:
             bad: 1
     outs:
     - path: data/processed/credit_risk_features.csv
+      hash: md5
+      md5: 91035cd07243f3bc785ce5858a5fd82c
+      size: 223
+  infer_schema:
+    cmd: python3 -m src.credit_risk.data.schema
+    deps:
+    - path: configs/logging.yaml
+      hash: md5
+      md5: 8e5e66179e26c29f84c9513e20679a04
+      size: 270
+    - path: data/processed/credit_risk_features.csv
+      hash: md5
+      md5: 91035cd07243f3bc785ce5858a5fd82c
+      size: 223
+    - path: src/credit_risk/config.py
+      hash: md5
+      md5: 9066bcd3e250dd3cd215968e21845afa
+      size: 2010
+    - path: src/credit_risk/data/schema.py
+      hash: md5
+      md5: 5902e2f299a75a0fe8e78e2218a05329
+      size: 3197
+    params:
+      params.yaml:
+        dataset:
+          raw_path: data/raw/german_credit.csv
+          processed_path: data/processed/german_credit_validated.csv
+          final_path: data/processed/credit_risk_features.csv
+          train_path: data/processed/train.csv
+          validation_path: data/processed/validation.csv
+          test_path: data/processed/test.csv
+          schema_path: data/processed/schema.json
+          target_column: credit_risk
+          allow_missing_raw: true
+    outs:
+    - path: data/processed/schema.json
+      hash: md5
+      md5: 0fb63180098df04ad501a71ae8457b77
+      size: 521
+  split_data:
+    cmd: python3 -m src.credit_risk.data.splitter
+    deps:
+    - path: configs/logging.yaml
+      hash: md5
+      md5: 8e5e66179e26c29f84c9513e20679a04
+      size: 270
+    - path: data/processed/credit_risk_features.csv
+      hash: md5
+      md5: 91035cd07243f3bc785ce5858a5fd82c
+      size: 223
+    - path: src/credit_risk/config.py
+      hash: md5
+      md5: 9066bcd3e250dd3cd215968e21845afa
+      size: 2010
+    - path: src/credit_risk/data/splitter.py
+      hash: md5
+      md5: 0d00e71ababe6a7d9ee1479f5d4b7402
+      size: 2840
+    params:
+      params.yaml:
+        dataset:
+          raw_path: data/raw/german_credit.csv
+          processed_path: data/processed/german_credit_validated.csv
+          final_path: data/processed/credit_risk_features.csv
+          train_path: data/processed/train.csv
+          validation_path: data/processed/validation.csv
+          test_path: data/processed/test.csv
+          schema_path: data/processed/schema.json
+          target_column: credit_risk
+          allow_missing_raw: true
+        split:
+          train_size: 0.7
+          validation_size: 0.15
+          test_size: 0.15
+          stratify: true
+          random_state: 42
+    outs:
+    - path: data/processed/test.csv
+      hash: md5
+      md5: 91035cd07243f3bc785ce5858a5fd82c
+      size: 223
+    - path: data/processed/train.csv
+      hash: md5
+      md5: 91035cd07243f3bc785ce5858a5fd82c
+      size: 223
+    - path: data/processed/validation.csv
       hash: md5
       md5: 91035cd07243f3bc785ce5858a5fd82c
       size: 223

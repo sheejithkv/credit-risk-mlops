@@ -25,3 +25,34 @@ stages:
     outs:
       - data/processed/credit_risk_features.csv:
           persist: true
+
+  infer_schema:
+    cmd: python3 -m src.credit_risk.data.schema
+    deps:
+      - data/processed/credit_risk_features.csv
+      - src/credit_risk/data/schema.py
+      - src/credit_risk/config.py
+      - configs/logging.yaml
+    params:
+      - dataset
+    outs:
+      - data/processed/schema.json:
+          persist: true
+
+  split_data:
+    cmd: python3 -m src.credit_risk.data.splitter
+    deps:
+      - data/processed/credit_risk_features.csv
+      - src/credit_risk/data/splitter.py
+      - src/credit_risk/config.py
+      - configs/logging.yaml
+    params:
+      - dataset
+      - split
+    outs:
+      - data/processed/train.csv:
+          persist: true
+      - data/processed/validation.csv:
+          persist: true
+      - data/processed/test.csv:
+          persist: true

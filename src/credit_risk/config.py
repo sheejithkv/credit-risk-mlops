@@ -4,13 +4,17 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class DatasetConfig(BaseModel):
     raw_path: Path
     processed_path: Path
     final_path: Path
+    train_path: Path
+    validation_path: Path
+    test_path: Path
+    schema_path: Path
     target_column: str
     allow_missing_raw: bool = False
 
@@ -25,6 +29,21 @@ class PreprocessingConfig(BaseModel):
     drop_duplicates: bool = True
     encode_target: bool = True
     target_mapping: dict[str, int]
+
+
+class SplitConfig(BaseModel):
+    train_size: float = Field(gt=0.0, lt=1.0)
+    validation_size: float = Field(gt=0.0, lt=1.0)
+    test_size: float = Field(gt=0.0, lt=1.0)
+    stratify: bool = True
+    random_state: int = 42
+
+    @model_validator(mode="after")
+    def validate_split_sum(self) -> "SplitConfig":
+        total = self.train_size + self.validation_size + self.test_size
+        if round(total, 6) != 1.0:
+            raise ValueError("train_size + validation_size + test_size must equal 1.0")
+        return self
 
 
 class ModelConfig(BaseModel):
@@ -42,6 +61,7 @@ class AppConfig(BaseModel):
     dataset: DatasetConfig
     validation: ValidationConfig
     preprocessing: PreprocessingConfig
+    split: SplitConfig
     model: ModelConfig
     mlflow: MlflowConfig
 
