@@ -1,0 +1,28 @@
+aws:
+  account_id: "539357031810"
+  region: "us-east-1"
+  role_arn: "arn:aws:iam::539357031810:role/SageMakerExecutionRole"
+  bucket: "credit-risk-mlops-539357031810-us-east-1"
+
+s3:
+  raw_data_uri: "s3://credit-risk-mlops-539357031810-us-east-1/credit-risk/data/german_credit.csv"
+  processing_output_uri: "s3://credit-risk-mlops-539357031810-us-east-1/credit-risk/processing"
+  model_output_uri: "s3://credit-risk-mlops-539357031810-us-east-1/credit-risk/models"
+  evaluation_output_uri: "s3://credit-risk-mlops-539357031810-us-east-1/credit-risk/evaluation"
+
+ecr:
+  repository_uri: "539357031810.dkr.ecr.us-east-1.amazonaws.com/credit-risk-api"
+
+sagemaker:
+  pipeline_name: "credit-risk-sagemaker-pipeline"
+  model_package_group_name: "credit-risk-model-group"
+  endpoint_name: "credit-risk-endpoint"
+  processing_instance_type: "ml.m5.xlarge"
+  training_instance_type: "ml.m5.xlarge"
+  inference_instance_type: "ml.m5.large"
+  approval_status: "PendingManualApproval"
+
+evaluation:
+  minimum_accuracy: 0.70
+  minimum_roc_auc: 0.70
+  minimum_f1: 0.35
