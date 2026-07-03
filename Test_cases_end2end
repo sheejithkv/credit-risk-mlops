@@ -1,0 +1,74 @@
+# Module 0/1/2: Data pipeline
+python3 -m src.credit_risk.data.validate
+python3 -m src.credit_risk.data.preprocess
+python3 -m src.credit_risk.data.schema
+python3 -m src.credit_risk.data.splitter
+
+# Module 3: Training + MLflow
+python3 -m src.credit_risk.modeling.train
+
+# Module 4: Optuna
+python3 -m src.credit_risk.modeling.optimize
+cat models/best_params.json
+
+# Module 5: FastAPI
+python3 -m pytest tests/test_api.py -v
+uvicorn api.main:app --host 0.0.0.0 --port 8000
+
+curl -s http://localhost:8000/health
+curl -s http://localhost:8000/ready
+curl -s -X POST http://localhost:8000/predict \
+  -H "Content-Type: application/json" \
+  -d '{"age":35,"duration_months":24,"credit_amount":5000,"installment_rate":2,"existing_credits":1,"people_liable":1,"purpose":"car","checking_account":"moderate","savings":"low","employment":"skilled","personal_status":"single","housing":"own","job":"skilled","property":"car","other_installment_plans":"none","foreign_worker":"yes","telephone":"yes","credit_history":"paid_back"}'
+
+# Module 6: Docker
+docker build -t credit-risk-api:final .
+docker run --rm -p 8000:8000 credit-risk-api:final
+
+# Module 7: Kubernetes
+kubectl apply --dry-run=client -k k8s/base
+kubectl apply -k k8s/base
+kubectl -n credit-risk get pods,svc,deploy,hpa,pdb
+
+# Module 8: Monitoring
+curl -s http://localhost:8000/metrics | grep credit_risk
+kubectl apply --dry-run=client -f monitoring/servicemonitor.yaml
+kubectl apply --dry-run=client -f monitoring/prometheus-rules.yaml
+
+# Module 9: CI/CD validation
+ruff check .
+python3 -m pytest tests -v
+dvc dag
+
+# Module 10: Airflow/Kubeflow
+python3 -m py_compile airflow/dags/credit_risk_pipeline.py
+python3 -m py_compile kubeflow/credit_risk_pipeline.py
+
+# Advanced modules
+python3 -m src.credit_risk.monitoring.drift \
+  --reference data/processed/train.csv \
+  --current data/processed/test.csv \
+  --output reports/drift_report.html
+
+python3 -m src.credit_risk.explainability.shap_report
+
+# AWS SageMaker
+python3 -m py_compile \
+  aws/sagemaker/src/preprocess.py \
+  aws/sagemaker/src/train.py \
+  aws/sagemaker/src/evaluate.py \
+  aws/sagemaker/src/inference.py \
+  aws/sagemaker/pipelines/credit_risk_sagemaker_pipeline.py \
+  aws/sagemaker/scripts/upload_data.py \
+  aws/sagemaker/scripts/create_endpoint.py \
+  aws/sagemaker/scripts/compare_costs.py
+
+python3 aws/sagemaker/scripts/upload_data.py
+python3 aws/sagemaker/scripts/compare_costs.py
+python3 aws/sagemaker/pipelines/credit_risk_sagemaker_pipeline.py
+
+# Full final validation
+python3 -m pytest tests -v
+dvc repro
+docker build -t credit-risk-api:final .
+git status
